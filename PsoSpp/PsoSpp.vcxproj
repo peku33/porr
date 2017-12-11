@@ -147,7 +147,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graph.cpp" />
     <ClCompile Include="PsoSpp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Graph.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
