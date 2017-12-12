@@ -8,6 +8,11 @@ Graph::Graph(const VertexId_t & Size, AdjascencyMatrix_t && AdjascencyMatrix):
 
 }
 
+const Graph::VertexId_t & Graph::GetSideSize() const
+{
+	return SideSize;
+}
+
 void Graph::GraphViz(std::ostream & Stream) const
 {
 	Stream << "graph {\n";

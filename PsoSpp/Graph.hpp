@@ -31,6 +31,9 @@ class Graph
 		AdjascencyMatrix_t AdjascencyMatrix;
 
 	public:
+		const VertexId_t & GetSideSize() const;
+
+	public:
 		/*
 			Generuje postaæ grafu któr¹ mo¿na zwizualizowæ.
 			https://dreampuf.github.io/GraphvizOnline/
