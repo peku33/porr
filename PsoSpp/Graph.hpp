@@ -41,6 +41,11 @@ class Graph
 		*/
 		void GraphViz(std::ostream & Stream) const;
 
+		/*
+			Rysuje graficzn¹ reprezentacjê macierzy s¹siedztwa
+		*/
+		void DumpAdjascencyMatrix(std::ostream & Stream) const;
+
 	public:
 		/*
 			Generowanie grafu metod¹ Waxman'a.

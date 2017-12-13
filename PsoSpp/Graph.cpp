@@ -27,24 +27,24 @@ void Graph::GraphViz(std::ostream & Stream) const
 		}
 	}
 
-	for(VertexId_t Vertex1X = 0; Vertex1X < SideSize; Vertex1X++)
+	for(VertexId_t Vertex1Y = 0; Vertex1Y < SideSize; Vertex1Y++)
 	{
-		for(VertexId_t Vertex1Y = 0; Vertex1Y < SideSize; Vertex1Y++)
+		for(VertexId_t Vertex1X = 0; Vertex1X < SideSize; Vertex1X++)
 		{
-			for(VertexId_t Vertex2X = 0; Vertex2X < SideSize; Vertex2X++)
+			for(VertexId_t Vertex2Y = 0; Vertex2Y < SideSize; Vertex2Y++)
 			{
-				for(VertexId_t Vertex2Y = 0; Vertex2Y < SideSize; Vertex2Y++)
+				for(VertexId_t Vertex2X = 0; Vertex2X < SideSize; Vertex2X++)
 				{
 					// Pominiêcie krawêdzi
 					if(Vertex2Y > Vertex1Y || (Vertex2Y == Vertex1Y && Vertex2X >= Vertex1X))
 						continue;
 
 					// Indeksy wierzcho³ków
-					const Graph::VertexId_t Vertex1Index = SideSize * Vertex1X + Vertex1Y;
-					const Graph::VertexId_t Vertex2Index = SideSize * Vertex2X + Vertex2Y;
+					const Graph::VertexId_t Vertex1Index = SideSize * Vertex1Y + Vertex1X;
+					const Graph::VertexId_t Vertex2Index = SideSize * Vertex2Y + Vertex2X;
 
 					// Indeksy krawêdzi
-					const size_t Edge1Index = SideSize * SideSize * Vertex1Index + Vertex2Index;
+					const size_t Edge1Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 					// const size_t Edge2Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 
 					// Pobierz wartoœæ krawêdzi
@@ -61,6 +61,48 @@ void Graph::GraphViz(std::ostream & Stream) const
 		}
 	}
 	Stream << "}\n";
+}
+
+void Graph::DumpAdjascencyMatrix(std::ostream & Stream) const
+{
+	Stream << "---------";
+	for(VertexId_t Vertex2Y = 0; Vertex2Y < SideSize; Vertex2Y++)
+	{
+		for(VertexId_t Vertex2X = 0; Vertex2X < SideSize; Vertex2X++)
+		{
+			Stream << "(" << std::setw(2) << Vertex2X << "," << std::setw(2) << Vertex2Y << ") ";
+		}
+	}
+	Stream << "\n";
+
+	for(VertexId_t Vertex1Y = 0; Vertex1Y < SideSize; Vertex1Y++)
+	{
+		for(VertexId_t Vertex1X = 0; Vertex1X < SideSize; Vertex1X++)
+		{
+			Stream << "(" << std::setw(2) << Vertex1X << "," << std::setw(2) << Vertex1Y << ") ";
+			for(VertexId_t Vertex2Y = 0; Vertex2Y < SideSize; Vertex2Y++)
+			{
+				for(VertexId_t Vertex2X = 0; Vertex2X < SideSize; Vertex2X++)
+				{
+					// Indeksy wierzcho³ków
+					const Graph::VertexId_t Vertex1Index = SideSize * Vertex1Y + Vertex1X;
+					const Graph::VertexId_t Vertex2Index = SideSize * Vertex2Y + Vertex2X;
+
+					// Indeksy krawêdzi
+					const size_t Edge1Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
+					// const size_t Edge2Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
+
+					// Pobierz wartoœæ krawêdzi
+					const EdgeWeight_t EdgeWeight = AdjascencyMatrix[Edge1Index];
+
+					Stream << std::setw(8) << (int) EdgeWeight;
+				}
+			}
+			Stream << "\n";
+		}
+	}
+
+	Stream << "\n";
 }
 
 Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Alpha, const double & Beta, const EdgeWeight_t & EdgeWeightMin, const EdgeWeight_t & EdgeWeightMax)
@@ -88,13 +130,18 @@ Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Al
 	// Incjalizacja generatora liczb losowych
 	srand((unsigned int) time(NULL));
 
-	for(Graph::VertexId_t Vertex1X = 0; Vertex1X < SideSize; Vertex1X++)
+	for(Graph::VertexId_t Vertex1Y = 0; Vertex1Y < SideSize; Vertex1Y++)
 	{
-		for(Graph::VertexId_t Vertex1Y = 0; Vertex1Y < SideSize; Vertex1Y++)
+		for(Graph::VertexId_t Vertex1X = 0; Vertex1X < SideSize; Vertex1X++)
 		{
-			for(Graph::VertexId_t Vertex2X = 0; Vertex2X < SideSize; Vertex2X++)
+			// Brak krawêdzi pomiêdzy tymi samymi punktami (na przek¹tnej)
+			const Graph::VertexId_t VertexIndex = SideSize * Vertex1Y + Vertex1X;
+			const size_t EdgeIndex = SideSize * SideSize * VertexIndex + VertexIndex;
+			AdjascencyMatrix[EdgeIndex] = std::numeric_limits<Graph::EdgeWeight_t>::max();;
+
+			for(Graph::VertexId_t Vertex2Y = 0; Vertex2Y < SideSize; Vertex2Y++)
 			{
-				for(Graph::VertexId_t Vertex2Y = 0; Vertex2Y < SideSize; Vertex2Y++)
+				for(Graph::VertexId_t Vertex2X = 0; Vertex2X < SideSize; Vertex2X++)
 				{
 					// Pominiêcie krawêdzi
 					if(Vertex2Y > Vertex1Y || (Vertex2Y == Vertex1Y && Vertex2X >= Vertex1X))
@@ -112,12 +159,12 @@ Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Al
 					const bool EdgeExists = (AdjascencyProbability) >= (1.0 * rand() / RAND_MAX);
 
 					// Indeksy wierzcho³ków
-					const Graph::VertexId_t Vertex1Index = SideSize * Vertex1X + Vertex1Y;
-					const Graph::VertexId_t Vertex2Index = SideSize * Vertex2X + Vertex2Y;
+					const Graph::VertexId_t Vertex1Index = SideSize * Vertex1Y + Vertex1X;
+					const Graph::VertexId_t Vertex2Index = SideSize * Vertex2Y + Vertex2X;
 
 					// Indeksy krawêdzi
-					const size_t Edge1Index = SideSize * SideSize * Vertex1Index + Vertex2Index;
-					const size_t Edge2Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
+					const size_t Edge1Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
+					const size_t Edge2Index = SideSize * SideSize * Vertex1Index + Vertex2Index;
 
 					// Domyœlnie brak krawêdzi = maksymalna dostêpna waga
 					Graph::EdgeWeight_t EdgeWeight = std::numeric_limits<Graph::EdgeWeight_t>::max();
