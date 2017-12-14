@@ -12,12 +12,15 @@ class Graph
 		// Id wierzcho³ka
 		typedef unsigned int VertexId_t;
 
+		// Indeks wierzcho³ka w wektorze / tablicy
+		typedef size_t VertexIndex_t;
+
 		// Waga krawêdzi
 		typedef uint8_t EdgeWeight_t;
 
 		// Macierz s¹siedztwa zawieraj¹ca wagi poszczególnych krawêdzi
 		// Poniewa¿ celem zadania jest minimalizacja sumarycznej wagi œcie¿ki, brak krawêdzi reprezentowany jest przez std::numeric_limits<EdgeWeight_t>::max()
-		typedef std::unique_ptr<Graph::EdgeWeight_t[]> AdjascencyMatrix_t; /* (Size * Size) * (Size * Size) */
+		typedef std::unique_ptr<Graph::EdgeWeight_t[]> AdjascencyMatrix_t; /* (SideSize * SideSize) * (SideSize * SideSize) */
 
 	public:
 		/*
@@ -32,6 +35,9 @@ class Graph
 
 	public:
 		const VertexId_t & GetSideSize() const;
+
+	public:
+		const EdgeWeight_t GetEdgeWeight(const VertexIndex_t & Vertex1Index, const VertexIndex_t & Vertex2Index) const;
 
 	public:
 		/*
