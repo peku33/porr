@@ -15,10 +15,7 @@ ParticleGroup::ParticleGroup(const Task & T, const size_t & ParticleNumber, cons
 	ParticleNumber(ParticleNumber), ParticleIterations(ParticleIterations), ParticleBetterSolutionFoundNoCountMax(ParticleBetterSolutionFoundNoCountMax),
 	Fi1(Fi1), Fi2(Fi2)
 {
-	// Inicjalizacja roju cz¹stek
-	Particles.reserve(ParticleNumber);
-	for(size_t ParticleId = 0; ParticleId < ParticleNumber; ParticleId++)
-		Particles.emplace_back(*this);
+
 }
 
 const Task & ParticleGroup::GetTask() const
@@ -39,6 +36,12 @@ const std::list<std::optional<GraphPath::PathWeight_t>> & ParticleGroup::GetPath
 
 bool ParticleGroup::Run()
 {
+	// Inicjalizacja roju cz¹stek
+	Particles.reserve(ParticleNumber);
+	for(size_t ParticleId = 0; ParticleId < ParticleNumber; ParticleId++)
+		Particles.emplace_back(*this);
+
+	// G³ówna pêtla programu
 	bool BetterSolutionFound = false;
 
 	// Jeœli przez kilka iteracji ¿adna z cz¹stek nie ulegnie poprawie - wykonujemy reinicjalizacjê wag
