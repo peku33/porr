@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <random>
 
 #include "Task.hpp"
 #include "GraphPath.hpp"
@@ -21,8 +22,11 @@ class Particle
 	public:
 		/*
 			Konstruktor. Inicjuje cz¹stkê losowymi priorytetami i wektorem prêdkoœci
+
+			PG - Grupa cz¹stek do której nale¿y ta cz¹stka
+			RandomGenerator - Generator liczb losowych
 		*/
-		Particle(const ParticleGroup & PG);
+		Particle(const ParticleGroup & PG, std::mt19937 & RandomGenerator);
 		
 		/*
 			Konstruktor kopiuj¹cy
@@ -31,6 +35,7 @@ class Particle
 
 	private:
 		const ParticleGroup & PG;
+		std::mt19937 & RandomGenerator;
 
 	private:
 		/*

@@ -1,17 +1,18 @@
 #include "Particle.hpp"
 
+#include <algorithm>
+
 #include "ParticleGroup.hpp"
 #include "Task.hpp"
 #include "Graph.hpp"
 #include "GraphPath.hpp"
 
-#include <algorithm>
-
-Particle::Particle(const ParticleGroup & PG):
+Particle::Particle(const ParticleGroup & PG, std::mt19937 & RandomGenerator):
 	PG(PG),
-	Priorities(new Priority_t[PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize()]),
-	Velocities(new Velocity_t[PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize()]),
-	BestPriorities(new Priority_t[PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize()])
+	RandomGenerator(RandomGenerator),
+	Priorities(new Priority_t[PG.GetTask().GetGraph().GetSize()]),
+	Velocities(new Velocity_t[PG.GetTask().GetGraph().GetSize()]),
+	BestPriorities(new Priority_t[PG.GetTask().GetGraph().GetSize()])
 {
 	// Inicjalizacja losowego stanu
 	RandomInitialize();
@@ -19,14 +20,15 @@ Particle::Particle(const ParticleGroup & PG):
 
 Particle::Particle(const Particle & Other):
 	PG(Other.PG),
-	Priorities(new Priority_t[PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize()]),
-	Velocities(new Velocity_t[PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize()]),
-	BestPriorities(new Priority_t[PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize()]),
+	RandomGenerator(Other.RandomGenerator),
+	Priorities(new Priority_t[PG.GetTask().GetGraph().GetSize()]),
+	Velocities(new Velocity_t[PG.GetTask().GetGraph().GetSize()]),
+	BestPriorities(new Priority_t[PG.GetTask().GetGraph().GetSize()]),
 	BestGraphPath(Other.BestGraphPath)
 {
-	std::copy(Other.Priorities.get(), Other.Priorities.get() + PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(), Priorities.get());
-	std::copy(Other.Velocities.get(), Other.Velocities.get() + PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(), Velocities.get());
-	std::copy(Other.BestPriorities.get(), Other.BestPriorities.get() + PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(), BestPriorities.get());
+	std::copy(Other.Priorities.get(), Other.Priorities.get() + PG.GetTask().GetGraph().GetSize(), Priorities.get());
+	std::copy(Other.Velocities.get(), Other.Velocities.get() + PG.GetTask().GetGraph().GetSize(), Velocities.get());
+	std::copy(Other.BestPriorities.get(), Other.BestPriorities.get() + PG.GetTask().GetGraph().GetSize(), BestPriorities.get());
 }
 
 
@@ -38,22 +40,25 @@ const std::optional<const GraphPath>& Particle::GetBestGraphPath() const
 
 void Particle::RandomInitialize()
 {
+	std::uniform_real_distribution<double> PriorityDistribution(0.0, 1.0);
+	std::uniform_real_distribution<double> VelocityDistribution(0.0, 1.0);
+
 	// Losowe Priorities, Velocities, [0.0; 1.0]
-	std::generate(Priorities.get(), Priorities.get() + PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(), [] { return 1.0 * rand() / RAND_MAX; });
-	std::generate(Velocities.get(), Velocities.get() + PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(), [] { return 1.0 * rand() / RAND_MAX; });
+	std::generate(Priorities.get(), Priorities.get() + PG.GetTask().GetGraph().GetSize(), [&] { return PriorityDistribution(RandomGenerator); });
+	std::generate(Velocities.get(), Velocities.get() + PG.GetTask().GetGraph().GetSize(), [&] { return VelocityDistribution(RandomGenerator); });
 
 	// Jeœli wêze³ nie niesie za sob¹ ¿adnego najlepszego rozwi¹zania - równie¿ inicjujemy wêze³ najlepszego rozwi¹zania jako wêze³ lokalnego rozwi¹zania
 	if(!BestGraphPath)
 	{
-		std::copy(Priorities.get(), Priorities.get() + PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(), BestPriorities.get());
+		std::copy(Priorities.get(), Priorities.get() + PG.GetTask().GetGraph().GetSize(), BestPriorities.get());
 	}
 }
 
 bool Particle::Run()
 {
 	// Lista odwiedzonych wêz³ów, aby nie tworzyæ cykli
-	std::unique_ptr<bool[]> VisitedNodes(new bool[PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize()]);
-	std::fill(VisitedNodes.get(), VisitedNodes.get() + PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(), false);
+	std::unique_ptr<bool[]> VisitedNodes(new bool[PG.GetTask().GetGraph().GetSize()]);
+	std::fill(VisitedNodes.get(), VisitedNodes.get() + PG.GetTask().GetGraph().GetSize(), false);
 
 	// Rozwi¹zanie czêœciowe - bufor na wierzcho³ki czêœciowo zbudowanej œcie¿ki
 	GraphPath::VertexIndexes_t PartialSolution;
@@ -76,11 +81,11 @@ bool Particle::Run()
 			);
 
 			// Obecna œcie¿ka istnieje, kryterium nie uleg³o poprawie
-			if(BestGraphPath && BestGraphPath.value().GetPathWeight() <= GP.GetPathWeight())
+			if(BestGraphPath && GP.IsBetterThan(BestGraphPath.value()))
 				return false;
 
 			// Zapamiêtaj obecny stan jako najlepszy
-			std::copy(Priorities.get(), Priorities.get() + PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(), BestPriorities.get());
+			std::copy(Priorities.get(), Priorities.get() + PG.GetTask().GetGraph().GetSize(), BestPriorities.get());
 
 			// Zapisujemy œcie¿kê
 			BestGraphPath.emplace(
@@ -100,7 +105,7 @@ bool Particle::Run()
 		Graph::VertexIndex_t BestNextVertexIndex;
 		double BestWeight;
 
-		for(Graph::VertexIndex_t NextVertexIndex = 0; NextVertexIndex < PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(); NextVertexIndex++)
+		for(Graph::VertexIndex_t NextVertexIndex = 0; NextVertexIndex < PG.GetTask().GetGraph().GetSize(); NextVertexIndex++)
 		{
 			// Pomijamy odwiedzone wêz³y
 			if(VisitedNodes[NextVertexIndex])
@@ -134,16 +139,18 @@ bool Particle::Run()
 
 void Particle::Update(const double & Fi1, const double & Fi2, const Particle & ParticleBest)
 {
+	std::uniform_real_distribution<double> RDistribution(0.0, 1.0);
+
 	// 2.4
 	const double Phi = Fi1 + Fi2;
 	const double Chi = 1.0 / (2 * abs(2 - Phi - sqrt(pow(Phi, 2) - 4.0 * Phi)));
 
-	for(Graph::VertexIndex_t VertexIndex = 0; VertexIndex < PG.GetTask().GetGraph().GetSideSize() * PG.GetTask().GetGraph().GetSideSize(); VertexIndex++)
+	for(Graph::VertexIndex_t VertexIndex = 0; VertexIndex < PG.GetTask().GetGraph().GetSize(); VertexIndex++)
 	{
 		// 2.3
 		// Zaktualizuj trajektoriê na podstawie pozycji swojej i najlepszego z otoczenia
-		const double R1 = 1.0 * rand() / RAND_MAX;
-		const double R2 = 1.0 * rand() / RAND_MAX;
+		const double R1 = RDistribution(RandomGenerator);
+		const double R2 = RDistribution(RandomGenerator);
 		Velocities[VertexIndex] = Chi * (Velocities[VertexIndex] + Fi1 * R1 * (BestPriorities[VertexIndex] - Priorities[VertexIndex]) + Fi2 * R2 * (ParticleBest.BestPriorities[VertexIndex] - Priorities[VertexIndex]));
 
 		// 2.2

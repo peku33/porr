@@ -4,16 +4,11 @@
 #include "Particle.hpp"
 #include "GraphPath.hpp"
 
-#define _DEBUG
-
-#ifdef _DEBUG
-	#include <iostream>
-#endif
-
-ParticleGroup::ParticleGroup(const Task & T, const size_t & ParticleNumber, const size_t & ParticleIterations, const size_t & ParticleBetterSolutionFoundNoCountMax, const double & Fi1, const double & Fi2):
+ParticleGroup::ParticleGroup(const Task & T, const size_t & ParticleNumber, const size_t & ParticleIterations, const size_t & ParticleBetterSolutionFoundNoCountMax, const double & Fi1, const double & Fi2, const std::mt19937::result_type & Seed):
 	T(T),
 	ParticleNumber(ParticleNumber), ParticleIterations(ParticleIterations), ParticleBetterSolutionFoundNoCountMax(ParticleBetterSolutionFoundNoCountMax),
-	Fi1(Fi1), Fi2(Fi2)
+	Fi1(Fi1), Fi2(Fi2),
+	RandomGenerator(Seed)
 {
 
 }
@@ -28,9 +23,9 @@ const std::optional<const Particle> & ParticleGroup::GetParticleBest() const
 	return ParticleBest;
 }
 
-const std::list<std::optional<GraphPath::PathWeight_t>> & ParticleGroup::GetPathWeights() const
+const ParticleGroup::HistoryEntries_t & ParticleGroup::GetHistoryEntries() const
 {
-	return PathWeights;
+	return HistoryEntries;
 }
 
 
@@ -39,7 +34,7 @@ bool ParticleGroup::Run()
 	// Inicjalizacja roju cz¹stek
 	Particles.reserve(ParticleNumber);
 	for(size_t ParticleId = 0; ParticleId < ParticleNumber; ParticleId++)
-		Particles.emplace_back(*this);
+		Particles.emplace_back(*this, RandomGenerator);
 
 	// G³ówna pêtla programu
 	bool BetterSolutionFound = false;
@@ -68,10 +63,16 @@ bool ParticleGroup::Run()
 				continue;
 
 			// Jeœli poprawiamy wynik otoczenia - zapisujemy go
-			if(!ParticleBest || ParticleCurrent.GetBestGraphPath().value().GetPathWeight() < ParticleBest.value().GetBestGraphPath().value().GetPathWeight())
+			if(!ParticleBest || ParticleCurrent.GetBestGraphPath().value().IsBetterThan(ParticleBest.value().GetBestGraphPath().value()))
 			{
 				ParticleBest.emplace(ParticleCurrent);
 				BetterSolutionFound = true;
+
+				// Zapisz historiê poprawy
+				HistoryEntries.push_back({
+					std::chrono::steady_clock::now(),
+					ParticleBest.value().GetBestGraphPath().value().GetPathWeight()
+				});
 			}
 
 			// Krok aktualizacji cz¹stki danymi najlepszej cz¹stki (jeœli taka istnieje)
@@ -106,12 +107,6 @@ bool ParticleGroup::Run()
 			// Tak - zerujemy licznik
 			ParticleBetterSolutionFoundNoCount = 0;
 		}
-
-		// Zapisz œcie¿kê na liœcie
-		if(ParticleBest)
-			PathWeights.emplace_back(ParticleBest.value().GetBestGraphPath().value().GetPathWeight());
-		else
-			PathWeights.emplace_back(std::nullopt);
 	}
 
 	return BetterSolutionFound;

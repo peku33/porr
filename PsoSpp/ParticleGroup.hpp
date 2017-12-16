@@ -2,11 +2,13 @@
 
 #include <vector>
 #include <optional>
+#include <chrono>
+#include <random>
 
+#include "Task.hpp"
 #include "Particle.hpp"
 #include "GraphPath.hpp"
 
-class Task;
 
 /*
 	Klasa kontenera roju cz¹stek
@@ -15,6 +17,14 @@ class Task;
 */
 class ParticleGroup
 {
+	public:
+		struct HistoryEntry_t
+		{
+			std::chrono::steady_clock::time_point TimePoint;
+			GraphPath::PathWeight_t PathWeight;
+		};
+		typedef std::list<HistoryEntry_t> HistoryEntries_t;
+
 	public:
 		/*
 			Konstruktor
@@ -26,8 +36,10 @@ class ParticleGroup
 			ParticleBetterSolutionFoundNoCountMax - po ilu pe³nych iteracjach bez poprawy jakiejkolwiek cz¹stki wykonaæ reset wag?
 
 			Fi1, Fi2 - Parametry dostrajalne metody aktualizacji œcie¿ki pojedynczej cz¹stki. Opisane w Particle.hpp
+
+			Seed - wartoœæ inicjuj¹ca generator liczb losowych
 		*/
-		ParticleGroup(const Task & T, const size_t & ParticleNumber, const size_t & ParticleIterations, const size_t & ParticleBetterSolutionFoundNoCountMax, const double & Fi1, const double & Fi2);
+		ParticleGroup(const Task & T, const size_t & ParticleNumber, const size_t & ParticleIterations, const size_t & ParticleBetterSolutionFoundNoCountMax, const double & Fi1, const double & Fi2, const std::mt19937::result_type & Seed);
 
 	private:
 		const Task & T;
@@ -41,6 +53,11 @@ class ParticleGroup
 
 	private:
 		/*
+			Generator liczb losowych
+		*/
+		std::mt19937 RandomGenerator;
+
+		/*
 			Kontener cz¹stek algorytmu, inicjowany w konstuktorze.
 		*/
 		std::vector<Particle> Particles; /* ParticleNumber */
@@ -51,14 +68,14 @@ class ParticleGroup
 		std::optional<const Particle> ParticleBest;
 
 		/*
-			Historia wag œciezek w kolejnych iteracjach
+			Historia wag w czasie
 		*/
-		std::list<std::optional<GraphPath::PathWeight_t>> PathWeights;
+		HistoryEntries_t HistoryEntries;
 
 	public:
 		const Task & GetTask() const;
 		const std::optional<const Particle> & GetParticleBest() const;
-		const std::list<std::optional<GraphPath::PathWeight_t>> & GetPathWeights() const;
+		const HistoryEntries_t & GetHistoryEntries() const;
 
 	public:
 		/*
