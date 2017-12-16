@@ -17,6 +17,11 @@ const GraphPath::PathWeight_t & GraphPath::GetPathWeight() const
 	return PathWeight;
 }
 
+bool GraphPath::IsBetterThan(const GraphPath & Other) const
+{
+	return PathWeight < Other.PathWeight;
+}
+
 void GraphPath::DumpPath(std::ostream & Stream) const
 {
 	// £¹czna waga

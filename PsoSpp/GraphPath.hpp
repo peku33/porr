@@ -52,6 +52,12 @@ class GraphPath
 
 	public:
 		/*
+			Sprawdza czy podana œcie¿ka jest lepsza od drugiej
+		*/
+		bool IsBetterThan(const GraphPath & Other) const;
+
+	public:
+		/*
 			Drukuje graficzn¹ reprezentacjê do strumienia
 		*/
 		void DumpPath(std::ostream & Stream) const;
