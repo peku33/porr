@@ -1,6 +1,7 @@
 #include "Graph.hpp"
 
 #include <iomanip>
+#include <random>
 
 Graph::Graph(const VertexId_t & Size, AdjascencyMatrix_t && AdjascencyMatrix):
 	SideSize(Size), AdjascencyMatrix(std::move(AdjascencyMatrix))
@@ -11,6 +12,11 @@ Graph::Graph(const VertexId_t & Size, AdjascencyMatrix_t && AdjascencyMatrix):
 const Graph::VertexId_t & Graph::GetSideSize() const
 {
 	return SideSize;
+}
+
+const Graph::VertexIndex_t Graph::GetSize() const
+{
+	return SideSize * SideSize;
 }
 
 const Graph::EdgeWeight_t Graph::GetEdgeWeight(const VertexIndex_t & Vertex1Index, const VertexIndex_t & Vertex2Index) const
@@ -139,6 +145,9 @@ Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Al
 	// Traktujemy (VertexId1, VertexId2) jako (x, y)
 	const double VertexDistanceEuclideanMaximal = sqrt(2 * (SideSize * SideSize));
 
+	std::mt19937 RandomGenerator;
+	std::uniform_real_distribution<double> RDistribution(0.0, 1.0);
+
 	for(Graph::VertexId_t Vertex1Y = 0; Vertex1Y < SideSize; Vertex1Y++)
 	{
 		for(Graph::VertexId_t Vertex1X = 0; Vertex1X < SideSize; Vertex1X++)
@@ -166,7 +175,7 @@ Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Al
 					const double AdjascencyProbability = Alpha * exp((-1.0 * VertexDistanceEuclidean) / (Beta * VertexDistanceEuclideanMaximal));
 
 					// Czy krawêdŸ istnieje?
-					const bool EdgeExists = (AdjascencyProbability) >= (1.0 * rand() / RAND_MAX);
+					const bool EdgeExists = (AdjascencyProbability) >= RDistribution(RandomGenerator);
 
 					// Indeksy wierzcho³ków
 					const Graph::VertexIndex_t Vertex1Index = SideSize * Vertex1Y + Vertex1X;
@@ -181,7 +190,7 @@ Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Al
 
 					// KrawêdŸ istnieje - ustawiamy losow¹ wagê z zakresu [EdgeWeightMin, EdgeWeightMax]
 					if(EdgeExists)
-						EdgeWeight = EdgeWeightMin + (Graph::EdgeWeight_t) ((1.0 * rand() / RAND_MAX) * (EdgeWeightMax - EdgeWeightMin));
+						EdgeWeight = EdgeWeightMin + (Graph::EdgeWeight_t) (RDistribution(RandomGenerator) * (EdgeWeightMax - EdgeWeightMin));
 
 					// Wpisujemy dane do macierzy
 					AdjascencyMatrix[Edge1Index] = EdgeWeight;

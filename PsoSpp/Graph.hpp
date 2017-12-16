@@ -34,7 +34,15 @@ class Graph
 		AdjascencyMatrix_t AdjascencyMatrix;
 
 	public:
+		/*
+			Rozmiar boku grafu (w sensie geometrycznym)
+		*/
 		const VertexId_t & GetSideSize() const;
+
+		/*
+			Rozmiar grafu (w sensie liczby wierzcho³ków)
+		*/
+		const VertexIndex_t GetSize() const;
 
 	public:
 		const EdgeWeight_t GetEdgeWeight(const VertexIndex_t & Vertex1Index, const VertexIndex_t & Vertex2Index) const;
