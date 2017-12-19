@@ -80,8 +80,8 @@ bool Particle::Run()
 				std::move(PartialSolution)
 			);
 
-			// Obecna œcie¿ka istnieje, kryterium nie uleg³o poprawie
-			if(BestGraphPath && GP.IsBetterThan(BestGraphPath.value()))
+			// Obecna œcie¿ka istnieje, a nowa nie jest lepsza, kryterium nie uleg³o poprawie
+			if(BestGraphPath && !GP.IsBetterThan(BestGraphPath.value()))
 				return false;
 
 			// Zapamiêtaj obecny stan jako najlepszy

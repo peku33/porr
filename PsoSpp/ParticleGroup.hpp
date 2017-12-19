@@ -21,6 +21,7 @@ class ParticleGroup
 		struct HistoryEntry_t
 		{
 			std::chrono::steady_clock::time_point TimePoint;
+			size_t ParticleIteration;
 			GraphPath::PathWeight_t PathWeight;
 		};
 		typedef std::list<HistoryEntry_t> HistoryEntries_t;

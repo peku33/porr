@@ -58,12 +58,9 @@ bool ParticleGroup::Run()
 			// Zapisujemy jeœli cz¹stka uleg³a poprawie
 			ParticleBetterSolutionFoundAny = ParticleBetterSolutionFoundAny || ParticleBetterSolutionFound;
 
-			// Jeœli nie znaleziono lepszego rozwi¹zania - jedziemy dalej
-			if(!ParticleBetterSolutionFound)
-				continue;
-
+			// Jeœli cz¹stka znalaz³a lepsz¹ œcie¿kê - sprawdŸ, czy nie najlepsz¹
 			// Jeœli poprawiamy wynik otoczenia - zapisujemy go
-			if(!ParticleBest || ParticleCurrent.GetBestGraphPath().value().IsBetterThan(ParticleBest.value().GetBestGraphPath().value()))
+			if(ParticleBetterSolutionFound && (!ParticleBest || ParticleCurrent.GetBestGraphPath().value().IsBetterThan(ParticleBest.value().GetBestGraphPath().value())))
 			{
 				ParticleBest.emplace(ParticleCurrent);
 				BetterSolutionFound = true;
@@ -71,6 +68,7 @@ bool ParticleGroup::Run()
 				// Zapisz historiê poprawy
 				HistoryEntries.push_back({
 					std::chrono::steady_clock::now(),
+					ParticleIteration,
 					ParticleBest.value().GetBestGraphPath().value().GetPathWeight()
 				});
 			}
