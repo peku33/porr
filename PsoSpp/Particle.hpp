@@ -9,9 +9,9 @@
 class ParticleGroup;
 
 /*
-	Cz¹stka algorytmu PSO korzystaj¹ca z "cost-priority-based particle encoding/decoding"
+	CzÄ…stka algorytmu PSO korzystajÄ…ca z "cost-priority-based particle encoding/decoding"
 	https://www.emis.de/journals/HOA/DDNS/Volume2007/27383.pdf
-	Rodzia³ 3.2
+	RodziaÅ‚ 3.2
 */
 class Particle
 {
@@ -21,15 +21,15 @@ class Particle
 
 	public:
 		/*
-			Konstruktor. Inicjuje cz¹stkê losowymi priorytetami i wektorem prêdkoœci
+			Konstruktor. Inicjuje czÄ…stkÄ™ losowymi priorytetami i wektorem prÄ™dkoÅ›ci
 
-			PG - Grupa cz¹stek do której nale¿y ta cz¹stka
+			PG - Grupa czÄ…stek do ktÃ³rej naleÅ¼y ta czÄ…stka
 			RandomGenerator - Generator liczb losowych
 		*/
 		Particle(const ParticleGroup & PG, std::mt19937 & RandomGenerator);
 		
 		/*
-			Konstruktor kopiuj¹cy
+			Konstruktor kopiujÄ…cy
 		*/
 		Particle(const Particle & Other);
 
@@ -39,7 +39,7 @@ class Particle
 
 	private:
 		/*
-			Kolekcje priorytetów i prêdkoœci dla kolejnych wêz³ów
+			Kolekcje priorytetÃ³w i prÄ™dkoÅ›ci dla kolejnych wÄ™zÅ‚Ã³w
 		*/
 		const std::unique_ptr<Priority_t[]> Priorities;
 		const std::unique_ptr<Velocity_t[]> Velocities;
@@ -47,13 +47,13 @@ class Particle
 
 	private:
 		/*
-			Wektor priorytetów dla najlepszego lokalnego rozwi¹zania.
+			Wektor priorytetÃ³w dla najlepszego lokalnego rozwiÄ…zania.
 			Ma sens tylko gdy (bool) BestGraphPath
 		*/
 		const std::unique_ptr<Priority_t[]> BestPriorities;
 
 		/*
-			Œcie¿ka dla najlepszego lokalnego rozwi¹zania
+			ÅšcieÅ¼ka dla najlepszego lokalnego rozwiÄ…zania
 		*/
 		std::optional<const GraphPath> BestGraphPath;
 
@@ -63,25 +63,25 @@ class Particle
 	public:
 		/*
 			Inicjuje priorytety losowymi danymi
-			"Miêkki reset" wêz³a, przydatny przy osadzeniu na minimum lokalnym
+			"MiÄ™kki reset" wÄ™zÅ‚a, przydatny przy osadzeniu na minimum lokalnym
 		*/
 		void RandomInitialize();
 
 		/*
-			Krok iteracji wêz³a.
-			Dla posiadanych priotytetów i prêdkoœci poszukuje kolejnego rozwi¹zania.
-			Jeœli takie znajdzie - zapisuje BestPriorities i BestGraphPath oraz zwraca true
-			Jeœli nie znajdzie - zwraca false
+			Krok iteracji wÄ™zÅ‚a.
+			Dla posiadanych priotytetÃ³w i prÄ™dkoÅ›ci poszukuje kolejnego rozwiÄ…zania.
+			JeÅ›li takie znajdzie - zapisuje BestPriorities i BestGraphPath oraz zwraca true
+			JeÅ›li nie znajdzie - zwraca false
 		*/
 		bool Run();
 
 		/*
-			Wykonuje aktualizacjê prêdkoœci cz¹stki korzystaj¹c z obecnie najlepszego wêz³a w grupie.
+			Wykonuje aktualizacjÄ™ prÄ™dkoÅ›ci czÄ…stki korzystajÄ…c z obecnie najlepszego wÄ™zÅ‚a w grupie.
 
-			Parametry dostrajalne Fi1 Fi2, (warunek: Fi1 + Fi2 > 4) okreœlaj¹ moc wp³ywu kolejno:
-				- lokalnej najlepszej cz¹stki
-				- grupowej najlepszej cz¹stki (ParticleBest)
-			Na kierunek przemieszczania siê tej cz¹stki
+			Parametry dostrajalne Fi1 Fi2, (warunek: Fi1 + Fi2 > 4) okreÅ›lajÄ… moc wpÅ‚ywu kolejno:
+				- lokalnej najlepszej czÄ…stki
+				- grupowej najlepszej czÄ…stki (ParticleBest)
+			Na kierunek przemieszczania siÄ™ tej czÄ…stki
 		*/
 		void Update(const double & Fi1, const double & Fi2, const Particle & ParticleBest);
 };

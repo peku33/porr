@@ -7,10 +7,10 @@
 #include "ParticleGroup.hpp"
 
 /*
-	Klasa odpowiedzialna za uruchamianie algorytmu w okreúlonej iloúci wπtkÛw
+	Klasa odpowiedzialna za uruchamianie algorytmu w okre≈õlonej ilo≈õci wƒÖtk√≥w
 
-	Dla kaødego wπtku (liczba okreúlona przez ParticleGroupNumber) tworzona jest grupa zawierajπca ParticleNumberTotal / ParticleGroupNumber czπstek
-	Kaødy wπtek wykonuje ParticleIterations iteracji
+	Dla ka≈ºdego wƒÖtku (liczba okre≈õlona przez ParticleGroupNumber) tworzona jest grupa zawierajƒÖca ParticleNumberTotal / ParticleGroupNumber czƒÖstek
+	Ka≈ºdy wƒÖtek wykonuje ParticleIterations iteracji
 */
 class ParticleGroupRunner
 {
@@ -20,11 +20,11 @@ class ParticleGroupRunner
 
 			T - Zadanie optymalizacji
 
-			ParticleGroupNumber - liczba niezaleønych grup czπstek (wπtkÛw). Podanie 0 spowoduje automatyczne ustalenie wartoúci na podstawie hardware concurency
-			ParticleNumberTotal - liczba czπstek we wszystkich grupach. Kaøda stworzona grupa zostanie podzielona.
-			ParticleIterations - liczba iteracji kaødej z grup
+			ParticleGroupNumber - liczba niezale≈ºnych grup czƒÖstek (wƒÖtk√≥w). Podanie 0 spowoduje automatyczne ustalenie warto≈õci na podstawie hardware concurency
+			ParticleNumberTotal - liczba czƒÖstek we wszystkich grupach. Ka≈ºda stworzona grupa zostanie podzielona.
+			ParticleIterations - liczba iteracji ka≈ºdej z grup
 
-			ParticleBetterSolutionFoundNoCountMax, Fi1, Fi2 - parametry przekazywane bezpoúrednio do ParticleGroup
+			ParticleBetterSolutionFoundNoCountMax, Fi1, Fi2 - parametry przekazywane bezpo≈õrednio do ParticleGroup
 		*/
 		ParticleGroupRunner(const Task & T, const size_t & ParticleGroupNumber, const size_t & ParticleNumberTotal, const size_t & ParticleIterations, const size_t & ParticleBetterSolutionFoundNoCountMax, const double & Fi1, const double & Fi2);
 
@@ -42,7 +42,7 @@ class ParticleGroupRunner
 	public:
 		struct RunResult_t
 		{
-			// Najlepsza znaleziona czπstka przez wszystkie iteracje
+			// Najlepsza znaleziona czƒÖstka przez wszystkie iteracje
 			std::optional<const Particle> ParticleBest;
 
 			// Historia iteracji

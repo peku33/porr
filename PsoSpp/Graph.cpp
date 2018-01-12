@@ -21,11 +21,11 @@ const Graph::VertexIndex_t Graph::GetSize() const
 
 const Graph::EdgeWeight_t Graph::GetEdgeWeight(const VertexIndex_t & Vertex1Index, const VertexIndex_t & Vertex2Index) const
 {
-	// Indeksy krawêdzi
+	// Indeksy krawÄ™dzi
 	const size_t Edge1Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 	// const size_t Edge2Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 
-	// Pobierz wartoœæ krawêdzi
+	// Pobierz wartoÅ›Ä‡ krawÄ™dzi
 	const EdgeWeight_t EdgeWeight = AdjascencyMatrix[Edge1Index];
 
 	return EdgeWeight;
@@ -53,26 +53,26 @@ void Graph::GraphViz(std::ostream & Stream) const
 			{
 				for(VertexId_t Vertex2X = 0; Vertex2X < SideSize; Vertex2X++)
 				{
-					// Pominiêcie krawêdzi
+					// PominiÄ™cie krawÄ™dzi
 					if(Vertex2Y > Vertex1Y || (Vertex2Y == Vertex1Y && Vertex2X >= Vertex1X))
 						continue;
 
-					// Indeksy wierzcho³ków
+					// Indeksy wierzchoÅ‚kÃ³w
 					const Graph::VertexIndex_t Vertex1Index = SideSize * Vertex1Y + Vertex1X;
 					const Graph::VertexIndex_t Vertex2Index = SideSize * Vertex2Y + Vertex2X;
 
-					// Indeksy krawêdzi
+					// Indeksy krawÄ™dzi
 					const size_t Edge1Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 					// const size_t Edge2Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 
-					// Pobierz wartoœæ krawêdzi
+					// Pobierz wartoÅ›Ä‡ krawÄ™dzi
 					const EdgeWeight_t EdgeWeight = AdjascencyMatrix[Edge1Index];
 
-					// Jeœli krawêdŸ nie istneije - jedziemy dalej
+					// JeÅ›li krawÄ™dÅº nie istneije - jedziemy dalej
 					if(EdgeWeight == std::numeric_limits<EdgeWeight_t>::max())
 						continue;
 
-					// Dodaj definicjê krawêdzi
+					// Dodaj definicjÄ™ krawÄ™dzi
 					Stream << "\tx" << Vertex1X << "y" << Vertex1Y << " -- x" << Vertex2X << "y" << Vertex2Y << " [ label = \"" << (unsigned int) EdgeWeight << "\" ];\n";
 				}
 			}
@@ -102,15 +102,15 @@ void Graph::DumpAdjascencyMatrix(std::ostream & Stream) const
 			{
 				for(VertexId_t Vertex2X = 0; Vertex2X < SideSize; Vertex2X++)
 				{
-					// Indeksy wierzcho³ków
+					// Indeksy wierzchoÅ‚kÃ³w
 					const Graph::VertexIndex_t Vertex1Index = SideSize * Vertex1Y + Vertex1X;
 					const Graph::VertexIndex_t Vertex2Index = SideSize * Vertex2Y + Vertex2X;
 
-					// Indeksy krawêdzi
+					// Indeksy krawÄ™dzi
 					const size_t Edge1Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 					// const size_t Edge2Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 
-					// Pobierz wartoœæ krawêdzi
+					// Pobierz wartoÅ›Ä‡ krawÄ™dzi
 					const EdgeWeight_t EdgeWeight = AdjascencyMatrix[Edge1Index];
 
 					Stream << std::setw(8) << (int) EdgeWeight;
@@ -125,7 +125,7 @@ void Graph::DumpAdjascencyMatrix(std::ostream & Stream) const
 
 Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Alpha, const double & Beta, const EdgeWeight_t & EdgeWeightMin, const EdgeWeight_t & EdgeWeightMax)
 {
-	// Sprawdzenie sensownoœci parametrów generowania
+	// Sprawdzenie sensownoÅ›ci parametrÃ³w generowania
 	if(SideSize <= 0)
 		throw std::invalid_argument("SideSize <= 0");
 
@@ -138,7 +138,7 @@ Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Al
 	if(EdgeWeightMin >= EdgeWeightMax || EdgeWeightMin <= 0 || EdgeWeightMax >= std::numeric_limits<EdgeWeight_t>::max())
 		throw std::invalid_argument("EdgeWeightMin >= EdgeWeightMax || EdgeWeightMin <= 0 || EdgeWeightMax >= std::numeric_limits<EdgeWeight_t>::max()");
 
-	// Macierz s¹siedztwa
+	// Macierz sÄ…siedztwa
 	AdjascencyMatrix_t AdjascencyMatrix(new EdgeWeight_t[(SideSize * SideSize) * (SideSize * SideSize)]);
 	// std::fill(AdjascencyMatrix.get(), AdjascencyMatrix.get() + (SideSize * SideSize) * (SideSize * SideSize), 0);
 
@@ -152,7 +152,7 @@ Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Al
 	{
 		for(Graph::VertexId_t Vertex1X = 0; Vertex1X < SideSize; Vertex1X++)
 		{
-			// Brak krawêdzi pomiêdzy tymi samymi punktami (na przek¹tnej)
+			// Brak krawÄ™dzi pomiÄ™dzy tymi samymi punktami (na przekÄ…tnej)
 			const Graph::VertexIndex_t VertexIndex = SideSize * Vertex1Y + Vertex1X;
 			const size_t EdgeIndex = SideSize * SideSize * VertexIndex + VertexIndex;
 
@@ -162,33 +162,33 @@ Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Al
 			{
 				for(Graph::VertexId_t Vertex2X = 0; Vertex2X < SideSize; Vertex2X++)
 				{
-					// Pominiêcie krawêdzi
+					// PominiÄ™cie krawÄ™dzi
 					if(Vertex2Y > Vertex1Y || (Vertex2Y == Vertex1Y && Vertex2X >= Vertex1X))
 						continue;
 
-					// Odleg³oœæ pomiêdzy dwoma wierzcho³kami
+					// OdlegÅ‚oÅ›Ä‡ pomiÄ™dzy dwoma wierzchoÅ‚kami
 					const double VertexDistanceX = 1.0 * Vertex2X - 1.0 * Vertex1X;
 					const double VertexDistanceY = 1.0 * Vertex2Y - 1.0 * Vertex1Y;
 					const double VertexDistanceEuclidean = sqrt(VertexDistanceX * VertexDistanceX + VertexDistanceY * VertexDistanceY);
 
-					// Formu³a Waxmana - prawdopodobieñstwo s¹siedzstwa VertexId1, VertexId2
+					// FormuÅ‚a Waxmana - prawdopodobieÅ„stwo sÄ…siedzstwa VertexId1, VertexId2
 					const double AdjascencyProbability = Alpha * exp((-1.0 * VertexDistanceEuclidean) / (Beta * VertexDistanceEuclideanMaximal));
 
-					// Czy krawêdŸ istnieje?
+					// Czy krawÄ™dÅº istnieje?
 					const bool EdgeExists = (AdjascencyProbability) >= RDistribution(RandomGenerator);
 
-					// Indeksy wierzcho³ków
+					// Indeksy wierzchoÅ‚kÃ³w
 					const Graph::VertexIndex_t Vertex1Index = SideSize * Vertex1Y + Vertex1X;
 					const Graph::VertexIndex_t Vertex2Index = SideSize * Vertex2Y + Vertex2X;
 
-					// Indeksy krawêdzi
+					// Indeksy krawÄ™dzi
 					const size_t Edge1Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 					const size_t Edge2Index = SideSize * SideSize * Vertex1Index + Vertex2Index;
 
-					// Domyœlnie brak krawêdzi = maksymalna dostêpna waga
+					// DomyÅ›lnie brak krawÄ™dzi = maksymalna dostÄ™pna waga
 					Graph::EdgeWeight_t EdgeWeight = std::numeric_limits<Graph::EdgeWeight_t>::max();
 
-					// KrawêdŸ istnieje - ustawiamy losow¹ wagê z zakresu [EdgeWeightMin, EdgeWeightMax]
+					// KrawÄ™dÅº istnieje - ustawiamy losowÄ… wagÄ™ z zakresu [EdgeWeightMin, EdgeWeightMax]
 					if(EdgeExists)
 						EdgeWeight = EdgeWeightMin + (Graph::EdgeWeight_t) (RDistribution(RandomGenerator) * (EdgeWeightMax - EdgeWeightMin));
 

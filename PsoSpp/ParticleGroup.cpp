@@ -31,41 +31,41 @@ const ParticleGroup::HistoryEntries_t & ParticleGroup::GetHistoryEntries() const
 
 bool ParticleGroup::Run()
 {
-	// Inicjalizacja roju cz¹stek
+	// Inicjalizacja roju czÄ…stek
 	Particles.reserve(ParticleNumber);
 	for(size_t ParticleId = 0; ParticleId < ParticleNumber; ParticleId++)
 		Particles.emplace_back(*this, RandomGenerator);
 
-	// G³ówna pêtla programu
+	// GÅ‚Ã³wna pÄ™tla programu
 	bool BetterSolutionFound = false;
 
-	// Jeœli przez kilka iteracji ¿adna z cz¹stek nie ulegnie poprawie - wykonujemy reinicjalizacjê wag
+	// JeÅ›li przez kilka iteracji Å¼adna z czÄ…stek nie ulegnie poprawie - wykonujemy reinicjalizacjÄ™ wag
 	size_t ParticleBetterSolutionFoundNoCount = 0;
 
 	for(size_t ParticleIteration = 0; ParticleIteration < ParticleIterations; ParticleIteration++)
 	{
-		// Czy którakolwiek cz¹sta uleg³a poprawie?
+		// Czy ktÃ³rakolwiek czÄ…sta ulegÅ‚a poprawie?
 		bool ParticleBetterSolutionFoundAny = false;
 
 		for(size_t ParticleId = 0; ParticleId < ParticleNumber; ParticleId++)
 		{
-			// Referencja na aktulan¹ cz¹stkê
+			// Referencja na aktulanÄ… czÄ…stkÄ™
 			Particle & ParticleCurrent = Particles.at(ParticleId);
 
-			// Uruchom przeszukiwanie i sprawdŸ czy poprawiliœmy wynik
+			// Uruchom przeszukiwanie i sprawdÅº czy poprawiliÅ›my wynik
 			const bool ParticleBetterSolutionFound = ParticleCurrent.Run();
 
-			// Zapisujemy jeœli cz¹stka uleg³a poprawie
+			// Zapisujemy jeÅ›li czÄ…stka ulegÅ‚a poprawie
 			ParticleBetterSolutionFoundAny = ParticleBetterSolutionFoundAny || ParticleBetterSolutionFound;
 
-			// Jeœli cz¹stka znalaz³a lepsz¹ œcie¿kê - sprawdŸ, czy nie najlepsz¹
-			// Jeœli poprawiamy wynik otoczenia - zapisujemy go
+			// JeÅ›li czÄ…stka znalazÅ‚a lepszÄ… Å›cieÅ¼kÄ™ - sprawdÅº, czy nie najlepszÄ…
+			// JeÅ›li poprawiamy wynik otoczenia - zapisujemy go
 			if(ParticleBetterSolutionFound && (!ParticleBest || ParticleCurrent.GetBestGraphPath().value().IsBetterThan(ParticleBest.value().GetBestGraphPath().value())))
 			{
 				ParticleBest.emplace(ParticleCurrent);
 				BetterSolutionFound = true;
 
-				// Zapisz historiê poprawy
+				// Zapisz historiÄ™ poprawy
 				HistoryEntries.push_back({
 					std::chrono::steady_clock::now(),
 					ParticleIteration,
@@ -73,7 +73,7 @@ bool ParticleGroup::Run()
 				});
 			}
 
-			// Krok aktualizacji cz¹stki danymi najlepszej cz¹stki (jeœli taka istnieje)
+			// Krok aktualizacji czÄ…stki danymi najlepszej czÄ…stki (jeÅ›li taka istnieje)
 			if(ParticleBest)
 			{
 				ParticleCurrent.Update(
@@ -84,13 +84,13 @@ bool ParticleGroup::Run()
 			}
 		}
 
-		// Czy jakakolwiek czastka uleg³a poprawie?
+		// Czy jakakolwiek czastka ulegÅ‚a poprawie?
 		if(!ParticleBetterSolutionFoundAny)
 		{
-			// ¯adna z cz¹stek nie uleg³a poprawie - zwiêkszamy licznik martwych iteracji
+			// Å»adna z czÄ…stek nie ulegÅ‚a poprawie - zwiÄ™kszamy licznik martwych iteracji
 			++ParticleBetterSolutionFoundNoCount;
 
-			// Jeœli licznik osi¹gn¹³ du¿¹ wartoœæ - zerujemy go i reinicjalizujemy cz¹stki
+			// JeÅ›li licznik osiÄ…gnÄ…Å‚ duÅ¼Ä… wartoÅ›Ä‡ - zerujemy go i reinicjalizujemy czÄ…stki
 			if(ParticleBetterSolutionFoundNoCount >= ParticleBetterSolutionFoundNoCountMax)
 			{
 				for(size_t ParticleId = 0; ParticleId < ParticleNumber; ParticleId++)

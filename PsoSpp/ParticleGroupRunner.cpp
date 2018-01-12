@@ -12,32 +12,32 @@ ParticleGroupRunner::ParticleGroupRunner(const Task & T, const size_t & Particle
 
 ParticleGroupRunner::RunResult_t ParticleGroupRunner::Run()
 {
-	// Jeœli u¿ytkownik nie poda³ liczby w¹tków - dobieramy automatycznie
+	// JeÅ›li uÅ¼ytkownik nie podaÅ‚ liczby wÄ…tkÃ³w - dobieramy automatycznie
 	const size_t ParticleGroupNumberReal = ParticleGroupNumber ? ParticleGroupNumber : std::thread::hardware_concurrency();
 
-	// Liczba cz¹stek na grupê
+	// Liczba czÄ…stek na grupÄ™
 	const size_t ParticleNumber = ParticleNumberTotal / ParticleGroupNumberReal;
 
-	// Struktura pojedynczej grupy cz¹stek
+	// Struktura pojedynczej grupy czÄ…stek
 	struct ParticleGroup_t
 	{
-		// Instancja grupy cz¹stek
+		// Instancja grupy czÄ…stek
 		ParticleGroup Instance;
 		
-		// W¹tek
+		// WÄ…tek
 		std::thread Thread;
 	};
 
-	// Kontener na grupy cz¹stek przypisane do w¹tków
+	// Kontener na grupy czÄ…stek przypisane do wÄ…tkÃ³w
 	std::list<ParticleGroup_t> ParticleGroups;
 
 	std::mt19937 RandomGenerator;
 
-	// Tworzymy cz¹stki
+	// Tworzymy czÄ…stki
 	for(size_t I = 0; I < ParticleGroupNumberReal; I++)
 	{
 		ParticleGroups.emplace_back(ParticleGroup_t {
-			// Stwórz grupê cz¹stek
+			// StwÃ³rz grupÄ™ czÄ…stek
 			ParticleGroup
 			{
 				T,
@@ -49,36 +49,36 @@ ParticleGroupRunner::RunResult_t ParticleGroupRunner::Run()
 				RandomGenerator()
 			},
 
-			// Stwórz pusty w¹tek
+			// StwÃ³rz pusty wÄ…tek
 			std::thread()
 		});
 	}
 
-	// Uruchom w¹tki
+	// Uruchom wÄ…tki
 	for(ParticleGroup_t & PG : ParticleGroups)
 		PG.Thread = std::thread(&ParticleGroup::Run, &(PG.Instance));
 
-	// Poczekaj na zakoñczenie
+	// Poczekaj na zakoÅ„czenie
 	for(ParticleGroup_t & PG : ParticleGroups)
 		PG.Thread.join();
 
 	// Aktualnie najlepszy wynik
 	std::optional<const Particle> ParticleBest;
 
-	// Historia wyników poszczególnych cz¹stek
+	// Historia wynikÃ³w poszczegÃ³lnych czÄ…stek
 	std::vector<ParticleGroup::HistoryEntries_t> HistoryEntries;
 	HistoryEntries.reserve(ParticleGroups.size());
 
-	// PrzejdŸ przez wszystkie cz¹stki i pobierz wyniki
+	// PrzejdÅº przez wszystkie czÄ…stki i pobierz wyniki
 	for(ParticleGroup_t & PG : ParticleGroups)
 	{
 		const std::optional<const Particle> & PGParticleBest = PG.Instance.GetParticleBest();
 
-		// Jeœli cz¹stka nic nie znalaz³a - pomiñ
+		// JeÅ›li czÄ…stka nic nie znalazÅ‚a - pomiÅ„
 		if(!PGParticleBest)
 			continue;
 
-		// Jeœli ma lepszy wynik - zaktualizuj
+		// JeÅ›li ma lepszy wynik - zaktualizuj
 		if(!ParticleBest || PGParticleBest.value().GetBestGraphPath().value().IsBetterThan(ParticleBest.value().GetBestGraphPath().value()))
 		{
 			ParticleBest.emplace(
@@ -86,7 +86,7 @@ ParticleGroupRunner::RunResult_t ParticleGroupRunner::Run()
 			);
 		}
 
-		// Dodaj historiê wyników
+		// Dodaj historiÄ™ wynikÃ³w
 		HistoryEntries.push_back(
 			PG.Instance.GetHistoryEntries()
 		);

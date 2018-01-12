@@ -9,23 +9,23 @@
 class Graph
 {
 	public:
-		// Id wierzcho³ka
+		// Id wierzchoÅ‚ka
 		typedef unsigned int VertexId_t;
 
-		// Indeks wierzcho³ka w wektorze / tablicy
+		// Indeks wierzchoÅ‚ka w wektorze / tablicy
 		typedef size_t VertexIndex_t;
 
-		// Waga krawêdzi
+		// Waga krawÄ™dzi
 		typedef uint8_t EdgeWeight_t;
 
-		// Macierz s¹siedztwa zawieraj¹ca wagi poszczególnych krawêdzi
-		// Poniewa¿ celem zadania jest minimalizacja sumarycznej wagi œcie¿ki, brak krawêdzi reprezentowany jest przez std::numeric_limits<EdgeWeight_t>::max()
+		// Macierz sÄ…siedztwa zawierajÄ…ca wagi poszczegÃ³lnych krawÄ™dzi
+		// PoniewaÅ¼ celem zadania jest minimalizacja sumarycznej wagi Å›cieÅ¼ki, brak krawÄ™dzi reprezentowany jest przez std::numeric_limits<EdgeWeight_t>::max()
 		typedef std::unique_ptr<Graph::EdgeWeight_t[]> AdjascencyMatrix_t; /* (SideSize * SideSize) * (SideSize * SideSize) */
 
 	public:
 		/*
-			SideSize - d³ugoœæ boku (graf jest kwadratowy)
-			AdjascencyMatrix - macierz SideSize ^ 4 z wagami boków
+			SideSize - dÅ‚ugoÅ›Ä‡ boku (graf jest kwadratowy)
+			AdjascencyMatrix - macierz SideSize ^ 4 z wagami bokÃ³w
 		*/
 		Graph(const VertexId_t & SideSize, AdjascencyMatrix_t && AdjascencyMatrix);
 
@@ -40,7 +40,7 @@ class Graph
 		const VertexId_t & GetSideSize() const;
 
 		/*
-			Rozmiar grafu (w sensie liczby wierzcho³ków)
+			Rozmiar grafu (w sensie liczby wierzchoÅ‚kÃ³w)
 		*/
 		const VertexIndex_t GetSize() const;
 
@@ -49,24 +49,24 @@ class Graph
 
 	public:
 		/*
-			Generuje postaæ grafu któr¹ mo¿na zwizualizowæ.
+			Generuje postaÄ‡ grafu ktÃ³rÄ… moÅ¼na zwizualizowÄ‡.
 			https://dreampuf.github.io/GraphvizOnline/
-			nale¿y wybraæ Engine: fdp
+			naleÅ¼y wybraÄ‡ Engine: fdp
 		*/
 		void GraphViz(std::ostream & Stream) const;
 
 		/*
-			Rysuje graficzn¹ reprezentacjê macierzy s¹siedztwa
+			Rysuje graficznÄ… reprezentacjÄ™ macierzy sÄ…siedztwa
 		*/
 		void DumpAdjascencyMatrix(std::ostream & Stream) const;
 
 	public:
 		/*
-			Generowanie grafu metod¹ Waxman'a.
+			Generowanie grafu metodÄ… Waxman'a.
 
-			SideSize - d³ugoœæ boku kwadratowego grafu
-			Parametry Alpha i Beta w zakresie 0.0 - 1.0 steruj¹ prawdopodobieñstwem pojawienia siê krawêdzi pomiêdzy dwoma punktami.
-			EdgeWeightMin, EdgeWeightMax - minimalna i maksymalna waga krawêdzi
+			SideSize - dÅ‚ugoÅ›Ä‡ boku kwadratowego grafu
+			Parametry Alpha i Beta w zakresie 0.0 - 1.0 sterujÄ… prawdopodobieÅ„stwem pojawienia siÄ™ krawÄ™dzi pomiÄ™dzy dwoma punktami.
+			EdgeWeightMin, EdgeWeightMax - minimalna i maksymalna waga krawÄ™dzi
 		*/
 		static Graph GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Alpha, const double & Beta, const EdgeWeight_t & EdgeWeightMin, const EdgeWeight_t & EdgeWeightMax);
 };

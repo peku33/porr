@@ -24,10 +24,10 @@ bool GraphPath::IsBetterThan(const GraphPath & Other) const
 
 void GraphPath::DumpPath(std::ostream & Stream) const
 {
-	// £¹czna waga
+	// ÅÄ…czna waga
 	Stream << "(" << PathWeight << "): ";
 
-	// Lista wierzcho³ków i poszczególnych wag
+	// Lista wierzchoÅ‚kÃ³w i poszczegÃ³lnych wag
 	VertexIndexes_t::const_iterator First = VertexIndexes.cbegin();
 	while(true)
 	{
@@ -44,7 +44,7 @@ void GraphPath::DumpPath(std::ostream & Stream) const
 
 GraphPath::PathWeight_t GraphPath::CalculatePathWeight(const Graph & G, const VertexIndexes_t & VertexIndexes)
 {
-	// Waga zerowa, jeœli œcie¿ka pusta
+	// Waga zerowa, jeÅ›li Å›cieÅ¼ka pusta
 	if(VertexIndexes.size() <= 1)
 		return 0;
 

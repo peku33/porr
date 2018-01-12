@@ -6,8 +6,8 @@
 #include "Graph.hpp"
 
 /*
-	Klasa reprezentuj¹ca zadanie optymalizacji
-	Wrapper na graf + indeksy wêz³a pocz¹tku i koñca
+	Klasa reprezentujÄ…ca zadanie optymalizacji
+	Wrapper na graf + indeksy wÄ™zÅ‚a poczÄ…tku i koÅ„ca
 */
 class Task
 {

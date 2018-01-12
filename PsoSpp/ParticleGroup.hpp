@@ -11,9 +11,9 @@
 
 
 /*
-	Klasa kontenera roju cz¹stek
+	Klasa kontenera roju czÄ…stek
 
-	Lokalna grupa cz¹stek, któr¹ mo¿na uruchomiæ na jednym w¹tku. Wszystkie zmienne przyjmowane jako referencje do sta³ych obiektów - w za³o¿eniu gwarantuje to w¹tkow¹ bezpiecznoœæ.
+	Lokalna grupa czÄ…stek, ktÃ³rÄ… moÅ¼na uruchomiÄ‡ na jednym wÄ…tku. Wszystkie zmienne przyjmowane jako referencje do staÅ‚ych obiektÃ³w - w zaÅ‚oÅ¼eniu gwarantuje to wÄ…tkowÄ… bezpiecznoÅ›Ä‡.
 */
 class ParticleGroup
 {
@@ -32,13 +32,13 @@ class ParticleGroup
 
 			T - Zadanie optymalizacji
 
-			ParticleNumber - Liczba cz¹stek
+			ParticleNumber - Liczba czÄ…stek
 			ParticleIterations - Liczba iteracji
-			ParticleBetterSolutionFoundNoCountMax - po ilu pe³nych iteracjach bez poprawy jakiejkolwiek cz¹stki wykonaæ reset wag?
+			ParticleBetterSolutionFoundNoCountMax - po ilu peÅ‚nych iteracjach bez poprawy jakiejkolwiek czÄ…stki wykonaÄ‡ reset wag?
 
-			Fi1, Fi2 - Parametry dostrajalne metody aktualizacji œcie¿ki pojedynczej cz¹stki. Opisane w Particle.hpp
+			Fi1, Fi2 - Parametry dostrajalne metody aktualizacji Å›cieÅ¼ki pojedynczej czÄ…stki. Opisane w Particle.hpp
 
-			Seed - wartoœæ inicjuj¹ca generator liczb losowych
+			Seed - wartoÅ›Ä‡ inicjujÄ…ca generator liczb losowych
 		*/
 		ParticleGroup(const Task & T, const size_t & ParticleNumber, const size_t & ParticleIterations, const size_t & ParticleBetterSolutionFoundNoCountMax, const double & Fi1, const double & Fi2, const std::mt19937::result_type & Seed);
 
@@ -59,12 +59,12 @@ class ParticleGroup
 		std::mt19937 RandomGenerator;
 
 		/*
-			Kontener cz¹stek algorytmu, inicjowany w konstuktorze.
+			Kontener czÄ…stek algorytmu, inicjowany w konstuktorze.
 		*/
 		std::vector<Particle> Particles; /* ParticleNumber */
 
 		/*
-			Zatrzaœniêta instancja aktualnie najlepszej cz¹stki
+			ZatrzaÅ›niÄ™ta instancja aktualnie najlepszej czÄ…stki
 		*/
 		std::optional<const Particle> ParticleBest;
 
@@ -80,9 +80,9 @@ class ParticleGroup
 
 	public:
 		/*
-			G³ówna pêtla programu.
+			GÅ‚Ã³wna pÄ™tla programu.
 
-			Zwraca czy znaleziono choæ jedno rozwi¹zanie problemu
+			Zwraca czy znaleziono choÄ‡ jedno rozwiÄ…zanie problemu
 		*/
 		bool Run();
 };

@@ -47,7 +47,7 @@ void Particle::RandomInitialize()
 	std::generate(Priorities.get(), Priorities.get() + PG.GetTask().GetGraph().GetSize(), [&] { return PriorityDistribution(RandomGenerator); });
 	std::generate(Velocities.get(), Velocities.get() + PG.GetTask().GetGraph().GetSize(), [&] { return VelocityDistribution(RandomGenerator); });
 
-	// Jeœli wêze³ nie niesie za sob¹ ¿adnego najlepszego rozwi¹zania - równie¿ inicjujemy wêze³ najlepszego rozwi¹zania jako wêze³ lokalnego rozwi¹zania
+	// JeÅ›li wÄ™zeÅ‚ nie niesie za sobÄ… Å¼adnego najlepszego rozwiÄ…zania - rÃ³wnieÅ¼ inicjujemy wÄ™zeÅ‚ najlepszego rozwiÄ…zania jako wÄ™zeÅ‚ lokalnego rozwiÄ…zania
 	if(!BestGraphPath)
 	{
 		std::copy(Priorities.get(), Priorities.get() + PG.GetTask().GetGraph().GetSize(), BestPriorities.get());
@@ -56,70 +56,70 @@ void Particle::RandomInitialize()
 
 bool Particle::Run()
 {
-	// Lista odwiedzonych wêz³ów, aby nie tworzyæ cykli
+	// Lista odwiedzonych wÄ™zÅ‚Ã³w, aby nie tworzyÄ‡ cykli
 	std::unique_ptr<bool[]> VisitedNodes(new bool[PG.GetTask().GetGraph().GetSize()]);
 	std::fill(VisitedNodes.get(), VisitedNodes.get() + PG.GetTask().GetGraph().GetSize(), false);
 
-	// Rozwi¹zanie czêœciowe - bufor na wierzcho³ki czêœciowo zbudowanej œcie¿ki
+	// RozwiÄ…zanie czÄ™Å›ciowe - bufor na wierzchoÅ‚ki czÄ™Å›ciowo zbudowanej Å›cieÅ¼ki
 	GraphPath::VertexIndexes_t PartialSolution;
 
-	// Zaczynamy od wierzcho³ka startowego
+	// Zaczynamy od wierzchoÅ‚ka startowego
 	Graph::VertexIndex_t CurrentVertexIndex = PG.GetTask().GetVertexIndexStart();
 
 	while(true)
 	{
-		// Dodaj obecny wierzcho³ek do historii
+		// Dodaj obecny wierzchoÅ‚ek do historii
 		PartialSolution.push_back(CurrentVertexIndex);
 
-		// Jeœli zadanie zosta³o spe³nione - koñczymy
+		// JeÅ›li zadanie zostaÅ‚o speÅ‚nione - koÅ„czymy
 		if(CurrentVertexIndex == PG.GetTask().GetVertexIndexEnd())
 		{
-			// Czy œcie¿ka uleg³a poprawie?
+			// Czy Å›cieÅ¼ka ulegÅ‚a poprawie?
 			GraphPath GP(
 				PG.GetTask().GetGraph(),
 				std::move(PartialSolution)
 			);
 
-			// Obecna œcie¿ka istnieje, a nowa nie jest lepsza, kryterium nie uleg³o poprawie
+			// Obecna Å›cieÅ¼ka istnieje, a nowa nie jest lepsza, kryterium nie ulegÅ‚o poprawie
 			if(BestGraphPath && !GP.IsBetterThan(BestGraphPath.value()))
 				return false;
 
-			// Zapamiêtaj obecny stan jako najlepszy
+			// ZapamiÄ™taj obecny stan jako najlepszy
 			std::copy(Priorities.get(), Priorities.get() + PG.GetTask().GetGraph().GetSize(), BestPriorities.get());
 
-			// Zapisujemy œcie¿kê
+			// Zapisujemy Å›cieÅ¼kÄ™
 			BestGraphPath.emplace(
 				std::move(GP)
 			);
 
-			// Œcie¿ka uleg³a poprawie
+			// ÅšcieÅ¼ka ulegÅ‚a poprawie
 			return true;
 		}
 
-		// Odznaczamy obecny wierzcho³ek jako odwiedzony
+		// Odznaczamy obecny wierzchoÅ‚ek jako odwiedzony
 		VisitedNodes[CurrentVertexIndex] = true;
 
-		// Wybierz nastêpny wierzcho³ek do przejœcia
-		// SprawdŸ wszystkie wierzcho³ki, minmalizcuj¹c Weight * Priority
+		// Wybierz nastÄ™pny wierzchoÅ‚ek do przejÅ›cia
+		// SprawdÅº wszystkie wierzchoÅ‚ki, minmalizcujÄ…c Weight * Priority
 		bool AnyFound = false;
 		Graph::VertexIndex_t BestNextVertexIndex;
 		double BestWeight;
 
 		for(Graph::VertexIndex_t NextVertexIndex = 0; NextVertexIndex < PG.GetTask().GetGraph().GetSize(); NextVertexIndex++)
 		{
-			// Pomijamy odwiedzone wêz³y
+			// Pomijamy odwiedzone wÄ™zÅ‚y
 			if(VisitedNodes[NextVertexIndex])
 				continue;
 
-			// Pobieramy wartoœæ krawêdzi, sprawdzamy czy w ogóle istnieje
+			// Pobieramy wartoÅ›Ä‡ krawÄ™dzi, sprawdzamy czy w ogÃ³le istnieje
 			const Graph::EdgeWeight_t EdgeWeight = PG.GetTask().GetGraph().GetEdgeWeight(CurrentVertexIndex, NextVertexIndex);
 			if(EdgeWeight == std::numeric_limits<Graph::EdgeWeight_t>::max())
 				continue;
 
-			// Wêze³ nie zosta³ odwiedzony, krawêdŸ istnieje - obliczamy priotytet
+			// WÄ™zeÅ‚ nie zostaÅ‚ odwiedzony, krawÄ™dÅº istnieje - obliczamy priotytet
 			double Weight = Priorities[NextVertexIndex] * EdgeWeight;
 
-			// Sprawdzamy czy to lepsze rozwi¹zanie
+			// Sprawdzamy czy to lepsze rozwiÄ…zanie
 			if(!AnyFound || Weight < BestWeight)
 			{
 				AnyFound = true;
@@ -128,11 +128,11 @@ bool Particle::Run()
 			}
 		}
 
-		// Nie ma dok¹d pójœæ
+		// Nie ma dokÄ…d pÃ³jÅ›Ä‡
 		if(!AnyFound)
 			return false;
 
-		// Idziemy do najlepszego wierzcho³ka
+		// Idziemy do najlepszego wierzchoÅ‚ka
 		CurrentVertexIndex = BestNextVertexIndex;
 	}
 }
@@ -148,13 +148,13 @@ void Particle::Update(const double & Fi1, const double & Fi2, const Particle & P
 	for(Graph::VertexIndex_t VertexIndex = 0; VertexIndex < PG.GetTask().GetGraph().GetSize(); VertexIndex++)
 	{
 		// 2.3
-		// Zaktualizuj trajektoriê na podstawie pozycji swojej i najlepszego z otoczenia
+		// Zaktualizuj trajektoriÄ™ na podstawie pozycji swojej i najlepszego z otoczenia
 		const double R1 = RDistribution(RandomGenerator);
 		const double R2 = RDistribution(RandomGenerator);
 		Velocities[VertexIndex] = Chi * (Velocities[VertexIndex] + Fi1 * R1 * (BestPriorities[VertexIndex] - Priorities[VertexIndex]) + Fi2 * R2 * (ParticleBest.BestPriorities[VertexIndex] - Priorities[VertexIndex]));
 
 		// 2.2
-		// Zaktualizuj po³o¿enie na podstawie trajektorii
+		// Zaktualizuj poÅ‚oÅ¼enie na podstawie trajektorii
 		Priorities[VertexIndex] += Velocities[VertexIndex];
 	}
 }

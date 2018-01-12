@@ -7,42 +7,42 @@
 #include "Graph.hpp"
 
 /*
-	Klasa reprezentuj¹ca œcie¿kê w grafie
+	Klasa reprezentujÄ…ca Å›cieÅ¼kÄ™ w grafie
 */
 class GraphPath
 {
 	public:
-		// Lista wierzcho³ków
+		// Lista wierzchoÅ‚kÃ³w
 		typedef std::list<Graph::VertexIndex_t> VertexIndexes_t;
-
-		// Waga œcie¿ki jako sumy wag krawêdzi
+		
+		// Waga Å›cieÅ¼ki jako sumy wag krawÄ™dzi
 		typedef unsigned long PathWeight_t;
 
 	public:
 		/*
 			Konstruktor.
 
-			Poniewa¿ lista powstaje zazwyczaj na bazie obiektów tymczasowych - kontruktor przenosz¹cy listê
+			PoniewaÅ¼ lista powstaje zazwyczaj na bazie obiektÃ³w tymczasowych - kontruktor przenoszÄ…cy listÄ™
 
 			G - Graf
-			VertexIndexes - lista wierzcho³ków
+			VertexIndexes - lista wierzchoÅ‚kÃ³w
 		*/
 		GraphPath(const Graph & G, VertexIndexes_t && VertexIndexes);
 
 	private:
 		/*
-			Chcemy umo¿liwiæ kopiowanie i przenoszenie, wiêc trzymamy refrence_wrapper
+			Chcemy umoÅ¼liwiÄ‡ kopiowanie i przenoszenie, wiÄ™c trzymamy refrence_wrapper
 		*/
 		std::reference_wrapper<const Graph> GWrapper;
 
 		/*
-			Lista wierzcho³ków
+			Lista wierzchoÅ‚kÃ³w
 		*/
 		VertexIndexes_t VertexIndexes;
 
 	private:
 		/*
-			Obliczona w kontruktorze waga œcie¿ki
+			Obliczona w kontruktorze waga Å›cieÅ¼ki
 		*/
 		PathWeight_t PathWeight;
 
@@ -52,19 +52,19 @@ class GraphPath
 
 	public:
 		/*
-			Sprawdza czy podana œcie¿ka jest lepsza od drugiej
+			Sprawdza czy podana Å›cieÅ¼ka jest lepsza od drugiej
 		*/
 		bool IsBetterThan(const GraphPath & Other) const;
 
 	public:
 		/*
-			Drukuje graficzn¹ reprezentacjê do strumienia
+			Drukuje graficznÄ… reprezentacjÄ™ do strumienia
 		*/
 		void DumpPath(std::ostream & Stream) const;
 
 	public:
 		/*
-			Metoda pomocnicza obliczaj¹ca d³ugoœæ œcie¿ki dla podanego grafu i listy
+			Metoda pomocnicza obliczajÄ…ca dÅ‚ugoÅ›Ä‡ Å›cieÅ¼ki dla podanego grafu i listy
 		*/
 		static PathWeight_t CalculatePathWeight(const Graph & G, const VertexIndexes_t & VertexIndexes);
 };
