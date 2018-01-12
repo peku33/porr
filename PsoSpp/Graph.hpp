@@ -42,10 +42,10 @@ class Graph
 		/*
 			Rozmiar grafu (w sensie liczby wierzchołków)
 		*/
-		const VertexIndex_t GetSize() const;
+		VertexIndex_t GetSize() const;
 
 	public:
-		const EdgeWeight_t GetEdgeWeight(const VertexIndex_t & Vertex1Index, const VertexIndex_t & Vertex2Index) const;
+		const EdgeWeight_t & GetEdgeWeight(const VertexIndex_t & Vertex1Index, const VertexIndex_t & Vertex2Index) const;
 
 	public:
 		/*

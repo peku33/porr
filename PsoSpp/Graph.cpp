@@ -14,19 +14,19 @@ const Graph::VertexId_t & Graph::GetSideSize() const
 	return SideSize;
 }
 
-const Graph::VertexIndex_t Graph::GetSize() const
+Graph::VertexIndex_t Graph::GetSize() const
 {
 	return SideSize * SideSize;
 }
 
-const Graph::EdgeWeight_t Graph::GetEdgeWeight(const VertexIndex_t & Vertex1Index, const VertexIndex_t & Vertex2Index) const
+const Graph::EdgeWeight_t & Graph::GetEdgeWeight(const VertexIndex_t & Vertex1Index, const VertexIndex_t & Vertex2Index) const
 {
 	// Indeksy krawędzi
 	const size_t Edge1Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 	// const size_t Edge2Index = SideSize * SideSize * Vertex2Index + Vertex1Index;
 
 	// Pobierz wartość krawędzi
-	const EdgeWeight_t EdgeWeight = AdjascencyMatrix[Edge1Index];
+	const EdgeWeight_t & EdgeWeight = AdjascencyMatrix[Edge1Index];
 
 	return EdgeWeight;
 }
