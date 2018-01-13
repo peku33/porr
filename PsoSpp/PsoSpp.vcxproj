@@ -153,7 +153,6 @@
   <ItemGroup>
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="GraphPath.cpp" />
-    <ClCompile Include="ParticleGroupRunner.cpp" />
     <ClCompile Include="Task.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleGroup.cpp" />
@@ -162,7 +161,6 @@
   <ItemGroup>
     <ClInclude Include="Graph.hpp" />
     <ClInclude Include="GraphPath.hpp" />
-    <ClInclude Include="ParticleGroupRunner.hpp" />
     <ClInclude Include="Task.hpp" />
     <ClInclude Include="Particle.hpp" />
     <ClInclude Include="ParticleGroup.hpp" />

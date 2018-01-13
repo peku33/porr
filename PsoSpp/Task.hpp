@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mpi.h>
+
 #include <optional>
 #include <list>
 
@@ -23,5 +25,16 @@ class Task
 		const Graph & GetGraph() const;
 		const Graph::VertexIndex_t & GetVertexIndexStart() const;
 		const Graph::VertexIndex_t & GetVertexIndexEnd() const;
+
+	/*
+		MPI
+	*/
+	private:
+		static const int MpiTagBase = 200;
+		static const int MpiTagVertexIndexes = MpiTagBase + 0;
+
+	public:
+		void MpiSend(const int & Destination, const MPI_Comm & MpiComm) const;
+		static Task MpiReceive(const Graph & G, const int & Source, const MPI_Comm & MpiComm);
 };
 

@@ -1,7 +1,10 @@
 #pragma once
 
+#include <mpi.h>
+
 #include <memory>
 #include <ostream>
+#include <random>
 
 /*
 	Klasa reprezentuje `kwadratowy` nieskierowany graf o rozmiarze SideSize * SideSize
@@ -10,10 +13,10 @@ class Graph
 {
 	public:
 		// Id wierzchołka
-		typedef unsigned int VertexId_t;
+		typedef uint64_t VertexId_t;
 
 		// Indeks wierzchołka w wektorze / tablicy
-		typedef size_t VertexIndex_t;
+		typedef uint64_t VertexIndex_t;
 
 		// Waga krawędzi
 		typedef uint8_t EdgeWeight_t;
@@ -47,6 +50,19 @@ class Graph
 	public:
 		const EdgeWeight_t & GetEdgeWeight(const VertexIndex_t & Vertex1Index, const VertexIndex_t & Vertex2Index) const;
 
+
+	/*
+		MPI
+	*/
+	private:
+		static const int MpiTagBase = 100;
+		static const int MpiTagSideSize = MpiTagBase + 0;
+		static const int MpiTagAdjascencyMatrix = MpiTagBase + 0;
+
+	public:
+		void MpiSend(const int & Destination, const MPI_Comm & MpiComm) const;
+		static Graph MpiReceive(const int & Source, const MPI_Comm & MpiComm);
+
 	public:
 		/*
 			Generuje postać grafu którą można zwizualizowć.
@@ -68,6 +84,6 @@ class Graph
 			Parametry Alpha i Beta w zakresie 0.0 - 1.0 sterują prawdopodobieństwem pojawienia się krawędzi pomiędzy dwoma punktami.
 			EdgeWeightMin, EdgeWeightMax - minimalna i maksymalna waga krawędzi
 		*/
-		static Graph GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Alpha, const double & Beta, const EdgeWeight_t & EdgeWeightMin, const EdgeWeight_t & EdgeWeightMax);
+		static Graph GenerateWaxmanRandom(std::mt19937 & RandomGenerator, const VertexId_t & SideSize, const double & Alpha, const double & Beta, const EdgeWeight_t & EdgeWeightMin, const EdgeWeight_t & EdgeWeightMax);
 };
 

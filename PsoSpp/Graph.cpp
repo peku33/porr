@@ -1,7 +1,6 @@
 #include "Graph.hpp"
 
 #include <iomanip>
-#include <random>
 
 Graph::Graph(const VertexId_t & Size, AdjascencyMatrix_t && AdjascencyMatrix):
 	SideSize(Size), AdjascencyMatrix(std::move(AdjascencyMatrix))
@@ -29,6 +28,28 @@ const Graph::EdgeWeight_t & Graph::GetEdgeWeight(const VertexIndex_t & Vertex1In
 	const EdgeWeight_t & EdgeWeight = AdjascencyMatrix[Edge1Index];
 
 	return EdgeWeight;
+}
+
+void Graph::MpiSend(const int & Destination, const MPI_Comm & MpiComm) const
+{
+	if(MPI_Send(&SideSize, 1, MPI_UNSIGNED_LONG_LONG, Destination, MpiTagSideSize, MpiComm) != MPI_SUCCESS)
+		throw std::runtime_error("MPI_Send(&SideSize, 1, MPI_UNSIGNED_LONG_LONG, Destination, MpiTagSideSize, MpiComm) != MPI_SUCCESS");
+
+	if(MPI_Send(AdjascencyMatrix.get(), SideSize * SideSize * SideSize * SideSize, MPI_CHAR, Destination, MpiTagSideSize, MpiComm) != MPI_SUCCESS)
+		throw std::runtime_error("MPI_Send(AdjascencyMatrix.get(), SideSize * SideSize * SideSize * SideSize, MPI_CHAR, Destination, MpiTagSideSize, MpiComm) != MPI_SUCCESS");
+}
+
+Graph Graph::MpiReceive(const int & Source, const MPI_Comm & MpiComm)
+{
+	VertexId_t SideSize;
+	if(MPI_Recv(&SideSize, 1, MPI_UNSIGNED_LONG_LONG, Source, MpiTagSideSize, MpiComm, NULL) != MPI_SUCCESS)
+		throw std::runtime_error("MPI_Recv(&SideSize, 1, MPI_UNSIGNED_LONG_LONG, Source, MpiTagSideSize, MpiComm, NULL) != MPI_SUCCESS");
+
+	AdjascencyMatrix_t AdjascencyMatrix(new Graph::EdgeWeight_t[SideSize * SideSize * SideSize * SideSize]);
+	if(MPI_Recv(AdjascencyMatrix.get(), SideSize * SideSize * SideSize * SideSize, MPI_CHAR, Source, MpiTagAdjascencyMatrix, MpiComm, NULL) != MPI_SUCCESS)
+		throw std::runtime_error("MPI_Recv(&AdjascencyMatrix.get(), SideSize * SideSize * SideSize * SideSize, MPI_CHAR, Source, MpiTagAdjascencyMatrix, MpiComm, NULL) != MPI_SUCCESS");
+
+	return Graph(SideSize, std::move(AdjascencyMatrix));
 }
 
 void Graph::GraphViz(std::ostream & Stream) const
@@ -123,7 +144,7 @@ void Graph::DumpAdjascencyMatrix(std::ostream & Stream) const
 	Stream << "\n";
 }
 
-Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Alpha, const double & Beta, const EdgeWeight_t & EdgeWeightMin, const EdgeWeight_t & EdgeWeightMax)
+Graph Graph::GenerateWaxmanRandom(std::mt19937 & RandomGenerator, const VertexId_t & SideSize, const double & Alpha, const double & Beta, const EdgeWeight_t & EdgeWeightMin, const EdgeWeight_t & EdgeWeightMax)
 {
 	// Sprawdzenie sensowności parametrów generowania
 	if(SideSize <= 0)
@@ -145,7 +166,6 @@ Graph Graph::GenerateWaxmanRandom(const VertexId_t & SideSize, const double & Al
 	// Traktujemy (VertexId1, VertexId2) jako (x, y)
 	const double VertexDistanceEuclideanMaximal = sqrt(2 * (SideSize * SideSize));
 
-	std::mt19937 RandomGenerator;
 	std::uniform_real_distribution<double> RDistribution(0.0, 1.0);
 
 	for(Graph::VertexId_t Vertex1Y = 0; Vertex1Y < SideSize; Vertex1Y++)

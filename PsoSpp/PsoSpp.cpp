@@ -1,69 +1,145 @@
 #include <iostream>
 
+#include <mpi.h>
+
 #include <time.h>
 #include <thread>
+#include <random>
 
 #include "Graph.hpp"
 #include "Task.hpp"
 #include "ParticleGroup.hpp"
-#include "ParticleGroupRunner.hpp"
 
-int main()
+int main(int ArgC, char ** ArgV)
 {
-	// Generowanie losowego grafu
-	std::cout << "Graph generation start" << std::endl;
-	const Graph G = Graph::GenerateWaxmanRandom(50, 1.0, 0.20, 10, 100);
-	std::cout << "Graph generation end" << std::endl;
-	std::cout << std::endl;
+	MPI_Init(&ArgC, &ArgV);
 
-	// Układ grafu na ekran. Nie radzę odpalać dla grafu o boku > 5, nic tego nie narysuje
-	// G1.DumpAdjascencyMatrix(std::cout);
-	// G1.GraphViz(std::cout);
+	int MpiRankMy, MpiRankTotal;
+	MPI_Comm_rank(MPI_COMM_WORLD, &MpiRankMy);
+	MPI_Comm_size(MPI_COMM_WORLD, &MpiRankTotal);
 
-	// Formułowanie zadania
-	// Zadanie polega na dotarciu z punku 0 (lewy dolny róg) do punktu ostaniego (prawy górny róg)
-	const Task T(G, 0, G.GetSize() - 1);
+	std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Rank start" << std::endl;
 
-	// Rój cząstek
-	std::cout << "ParticleGroupRunner generation start" << std::endl;
-	ParticleGroupRunner PGR(T, 0, 40, 25, 5, 4.0, 2.0);
-	std::cout << "ParticleGroupRunner generation end" << std::endl;
-	std::cout << std::endl;
+	std::unique_ptr<const Graph> GPtr;
+	std::unique_ptr<const Task> TPtr;
 
-	// Jazda
-	std::cout << "Algorithm start" << std::endl;
-	const std::chrono::steady_clock::time_point TimePointStart = std::chrono::steady_clock::now();
-	ParticleGroupRunner::RunResult_t RunResult = PGR.Run();
-	const std::chrono::steady_clock::time_point TimePointEnd = std::chrono::steady_clock::now();
-	std::cout << "Algorithm end" << std::endl;
-	std::cout << "Algorithm time: " << std::chrono::duration_cast<std::chrono::milliseconds>(TimePointEnd - TimePointStart).count() << "ms" << std::endl;
-	std::cout << std::endl;
-
-	// Wynik
-	if(RunResult.ParticleBest)
+	if(MpiRankMy == 0)
 	{
-		std::cout << "Best path found: ";
-		RunResult.ParticleBest.value().GetBestGraphPath().value().DumpPath(std::cout);
+		// Root
+
+		// Generator liczb losowych dla grafu.
+		// Można go zainicjować stałą liczbą żeby uzyskać ten sam graf w  kolejnych uruchomieniach programu
+		// Inicjalizacja bezparametrowo losuje seed na podstawie czasu
+
+		// std::mt19937 GraphRandomGenerator(1);
+		std::mt19937 GraphRandomGenerator;
+
+		//=====================================================================
+		// Graph
+		//=====================================================================
+		// Generowanie losowego grafu
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Graph generation start" << std::endl;
+		Graph G = Graph::GenerateWaxmanRandom(GraphRandomGenerator, 50, 1.0, 0.20, 10, 100);
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Graph generation end" << std::endl;
 		std::cout << std::endl;
+
+		// Propagacja losowego grafu
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Graph propagation start" << std::endl;
+		for(int Destination = 1; Destination < MpiRankTotal; Destination++)
+			G.MpiSend(Destination, MPI_COMM_WORLD);
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Graph propagation end" << std::endl;
+
+		// Po wysłaniu przenosimy graf do globalnej struktury
+		GPtr.reset(
+			new Graph(
+				std::move(G)
+			)
+		);
+
+		//=====================================================================
+		// Task
+		//=====================================================================
+		Task T(*GPtr, 0, G.GetSize() - 1);
+
+		// Wyślij zadanie
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Task propagation start" << std::endl;
+		for(int Destination = 1; Destination < MpiRankTotal; Destination++)
+			T.MpiSend(Destination, MPI_COMM_WORLD);
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Task propagation end" << std::endl;
+
+		// Po wysłaniu przenosimy
+		TPtr.reset(
+			new Task(
+				std::move(T)
+			)
+		);
+
 	}
 	else
 	{
-		std::cout << "Path not found" << std::endl;
+		// Non-Root
+
+		//=====================================================================
+		// Graph
+		//=====================================================================
+
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Graph reception start" << std::endl;
+		Graph G = Graph::MpiReceive(0, MPI_COMM_WORLD);
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Graph reception end" << std::endl;
+
+		// Po odebraniu przenosimy graf do globalnej struktury
+		GPtr.reset(
+			new Graph(
+				std::move(G)
+			)
+		);
+
+		//=====================================================================
+		// Task
+		//=====================================================================
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Task reception start" << std::endl;
+		Task T = Task::MpiReceive(*GPtr, 0, MPI_COMM_WORLD);
+		std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Task reception end" << std::endl;
+
+		// Po odebraniu przenosimy do globalnej struktury
+		TPtr.reset(
+			new Task(
+				std::move(T)
+			)
+		);
 	}
+
+	// Graf został rozpropagowany
+	// Uruchamiamy runnery
+	// Jazda
+	std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Algorithm start" << std::endl;
+	const std::chrono::steady_clock::time_point TimePointStart = std::chrono::steady_clock::now();
+
+	// Generator liczb losowych dla cząstek
+	// Pełna inicjalizacja pozwoli uzyskać powtarzalne wyniki
+
+	// std::mt19937 ParticleRandomGenerator(1);
+	std::mt19937 ParticleRandomGenerator;
+
+	// Modyfikujemy generator dla każdego wątku
+	ParticleRandomGenerator.seed(ParticleRandomGenerator() + MpiRankMy);
+
+	ParticleGroup PG(*TPtr, 32, 32, 4, 4.0, 0.75, ParticleRandomGenerator, MpiRankMy, MpiRankTotal, MPI_COMM_WORLD);
+	PG.Run();
+
+	const std::chrono::steady_clock::time_point TimePointEnd = std::chrono::steady_clock::now();
+	std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Algorithm end: " << std::chrono::duration_cast<std::chrono::milliseconds>(TimePointEnd - TimePointStart).count() << "ms" << std::endl;
 	std::cout << std::endl;
 
-	// Historia postępu
-	std::cout << "Progress history: " << std::endl;
-	for(size_t ParticleGroupId = 0; ParticleGroupId < RunResult.HistoryEntries.size(); ParticleGroupId++)
-	{
-		std::cout << "ParticleGroupId = " << ParticleGroupId << std::endl;
-		const ParticleGroup::HistoryEntries_t & HistoryEntries = RunResult.HistoryEntries.at(ParticleGroupId);
-		for(const ParticleGroup::HistoryEntry_t & HistoryEntry : HistoryEntries)
-			std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(HistoryEntry.TimePoint - TimePointStart).count() << "ms" << "\t" << HistoryEntry.PathWeight << "\t" << HistoryEntry.ParticleIteration << std::endl;
-		std::cout << std::endl;
-	}
-	//
+	std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Rank end" << std::endl;
+
+	std::cout << "MpiRankMy = " << MpiRankMy << std::endl;
+	const ParticleGroup::HistoryEntries_t & HistoryEntries = PG.GetHistoryEntries();
+	for(const ParticleGroup::HistoryEntry_t & HistoryEntry : HistoryEntries)
+		std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(HistoryEntry.TimePoint - TimePointStart).count() << "ms" << "\t" << HistoryEntry.PathWeight << "\t" << HistoryEntry.ParticleIteration << std::endl;
 	std::cout << std::endl;
+
+	MPI_Finalize();
 
 	return 0;
 }

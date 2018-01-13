@@ -16,8 +16,8 @@ class ParticleGroup;
 class Particle
 {
 	public:
-		typedef double Priority_t;
 		typedef double Velocity_t;
+		typedef std::unique_ptr<Velocity_t[]> Velocities_t;
 
 	public:
 		/*
@@ -27,11 +27,6 @@ class Particle
 			RandomGenerator - Generator liczb losowych
 		*/
 		Particle(const ParticleGroup & PG, std::mt19937 & RandomGenerator);
-		
-		/*
-			Konstruktor kopiujący
-		*/
-		Particle(const Particle & Other);
 
 	private:
 		const ParticleGroup & PG;
@@ -41,24 +36,17 @@ class Particle
 		/*
 			Kolekcje priorytetów i prędkości dla kolejnych węzłów
 		*/
-		const std::unique_ptr<Priority_t[]> Priorities;
-		const std::unique_ptr<Velocity_t[]> Velocities;
-
+		GraphPath::Priorities_t Priorities;
+		Velocities_t Velocities;
 
 	private:
 		/*
-			Wektor priorytetów dla najlepszego lokalnego rozwiązania.
-			Ma sens tylko gdy (bool) BestGraphPath
-		*/
-		const std::unique_ptr<Priority_t[]> BestPriorities;
-
-		/*
 			Ścieżka dla najlepszego lokalnego rozwiązania
 		*/
-		std::optional<const GraphPath> BestGraphPath;
+		std::optional<const GraphPath> GraphPathBest;
 
 	public:
-		const std::optional<const GraphPath> & GetBestGraphPath() const;
+		const std::optional<const GraphPath> & GetGraphPathBest() const;
 
 	public:
 		/*
@@ -83,6 +71,6 @@ class Particle
 				- grupowej najlepszej cząstki (ParticleBest)
 			Na kierunek przemieszczania się tej cząstki
 		*/
-		void Update(const double & Fi1, const double & Fi2, const Particle & ParticleBest);
+		void Update(const double & Fi1, const double & Fi2, const std::optional<const GraphPath> & GraphPathBestGlobal);
 };
 
