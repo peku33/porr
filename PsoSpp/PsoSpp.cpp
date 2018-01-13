@@ -124,14 +124,18 @@ int main(int ArgC, char ** ArgV)
 	// Modyfikujemy generator dla każdego wątku
 	ParticleRandomGenerator.seed(ParticleRandomGenerator() + MpiRankMy);
 
-	ParticleGroup PG(*TPtr, 32, 32, 4, 4.0, 0.75, ParticleRandomGenerator, MpiRankMy, MpiRankTotal, MPI_COMM_WORLD);
+	ParticleGroup PG(*TPtr, 8, 64, 4, 4.0, 0.75, ParticleRandomGenerator, MpiRankMy, MpiRankTotal, MPI_COMM_WORLD);
 	PG.Run();
 
 	const std::chrono::steady_clock::time_point TimePointEnd = std::chrono::steady_clock::now();
 	std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Algorithm end: " << std::chrono::duration_cast<std::chrono::milliseconds>(TimePointEnd - TimePointStart).count() << "ms" << std::endl;
 	std::cout << std::endl;
 
-	std::cout << "[" << MpiRankMy << " @ " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << "]  Rank end" << std::endl;
+	// Bariera synchronizacji
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	// Ultraprymitywny sposób na pokazanie wyników w kolejności
+	std::this_thread::sleep_for(std::chrono::milliseconds((1 + MpiRankMy) * 250));
 
 	std::cout << "MpiRankMy = " << MpiRankMy << std::endl;
 	const ParticleGroup::HistoryEntries_t & HistoryEntries = PG.GetHistoryEntries();
